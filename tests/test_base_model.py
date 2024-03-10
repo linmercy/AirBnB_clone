@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 """Unit tests for BaseModel class."""
 
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 import unittest
 from datetime import datetime
 from models.base_model import BaseModel
