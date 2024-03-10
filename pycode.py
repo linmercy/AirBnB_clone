@@ -1,20 +1,17 @@
-#!/usr/bin/python3
-"""This module defines a simple class."""
+import os
+import sys
 
-class MyClass:
-    """A simple class with a constructor and a method."""
 
-    def __init__(self, name):
-        """Initialize the instance with a name."""
-        self.name = name
+def greet(name):
+    """Greet a person by name."""
+    print("Hello, {}!".format(name))
 
-    def greet(self):
-        """Print a greeting message."""
-        print(f"Hello, {self.name}!")
 
-# Instantiate the class
-obj = MyClass("Alice")
+def main():
+    """Main function."""
+    name = input("Enter your name: ")
+    greet(name)
 
-# Call the method
-obj.greet()
 
+if __name__ == "__main__":
+    main()
