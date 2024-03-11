@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-"""Command interpreter module."""
-import cmd
-from models.base_model import BaseModel
-from models import storage
+"""Command Interpreter Module"""
 
+import cmd
+from models import storage
+from models.base_model import BaseModel
 
 class HBNBCommand(cmd.Cmd):
-    """Command interpreter class."""
-
+    """Command interpreter class"""
+    
     prompt = "(hbnb) "
 
     def do_quit(self, arg):
@@ -16,14 +16,15 @@ class HBNBCommand(cmd.Cmd):
 
     def do_EOF(self, arg):
         """Exit the program"""
+        print("")
         return True
 
     def emptyline(self):
-        """Do nothing on empty line"""
+        """Called when an empty line is entered"""
         pass
 
     def do_create(self, arg):
-        """Creates a new instance of BaseModel, saves it, and prints the id"""
+        """Creates a new instance of BaseModel"""
         if not arg:
             print("** class name missing **")
             return
@@ -36,81 +37,68 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, arg):
         """Prints the string representation of an instance"""
-        args = arg.split()
         if not arg:
             print("** class name missing **")
             return
-        try:
-            if args[0] not in storage.classes():
-                print("** class doesn't exist **")
-                return
-            if len(args) < 2:
-                print("** instance id missing **")
-                return
-            objs = storage.all()
-            key = args[0] + "." + args[1]
-            if key in objs:
-                print(objs[key])
-            else:
-                print("** no instance found **")
-        except IndexError:
+        args = arg.split()
+        if len(args) < 2:
             print("** instance id missing **")
+            return
+        try:
+            obj = storage.all().get(args[1])
+            if obj is None:
+                print("** no instance found **")
+            else:
+                print(obj)
+        except NameError:
+            print("** class doesn't exist **")
 
     def do_destroy(self, arg):
         """Deletes an instance based on the class name and id"""
-        args = arg.split()
         if not arg:
             print("** class name missing **")
             return
-        try:
-            if args[0] not in storage.classes():
-                print("** class doesn't exist **")
-                return
-            if len(args) < 2:
-                print("** instance id missing **")
-                return
-            objs = storage.all()
-            key = args[0] + "." + args[1]
-            if key in objs:
-                del objs[key]
-                storage.save()
-            else:
-                print("** no instance found **")
-        except IndexError:
+        args = arg.split()
+        if len(args) < 2:
             print("** instance id missing **")
+            return
+        try:
+            obj = storage.all(eval(args[0])).get(args[1])
+            if obj is None:
+                print("** no instance found **")
+            else:
+                del storage.all()[args[0] + "." + args[1]]
+                storage.save()
+        except NameError:
+            print("** class doesn't exist **")
 
     def do_all(self, arg):
-        """Prints all string representation of all instances"""
+        """
+        Prints all string representation of all instances based or not on the class name.
+        Ex: $ all BaseModel or $ all.
+        """
         if not arg:
-            objs = storage.all()
-            print([str(objs[key]) for key in objs])
+            print("** class name missing **")
         else:
             try:
-                if arg not in storage.classes():
-                    print("** class doesn't exist **")
-                    return
-                objs = storage.all()
-                filtered_objs = {key: objs[key] for key in objs if key.split('.')[0] == arg}
-                print([str(obj) for obj in filtered_objs.values()])
-            except IndexError:
-                print("** instance id missing **")
+                objs = [str(obj) for obj in storage.all(eval(arg)).values()]
+                print(objs)
+            except NameError:
+                print("** class doesn't exist **")
 
     def do_update(self, arg):
         """Updates an instance based on the class name and id"""
-        args = arg.split()
         if not arg:
             print("** class name missing **")
             return
+        args = arg.split()
+        if len(args) < 2:
+            print("** instance id missing **")
+            return
         try:
-            if args[0] not in storage.classes():
-                print("** class doesn't exist **")
-                return
-            if len(args) < 2:
-                print("** instance id missing **")
-                return
-            objs = storage.all()
-            key = args[0] + "." + args[1]
-            if key not in objs:
+            obj_dict = storage.all(eval(args[0]))
+            obj = obj_dict.get(args[1])
+            if obj is None:
                 print("** no instance found **")
                 return
             if len(args) < 3:
@@ -119,11 +107,16 @@ class HBNBCommand(cmd.Cmd):
             if len(args) < 4:
                 print("** value missing **")
                 return
-            setattr(objs[key], args[2], args[3][1:-1])
-            storage.save()
-        except IndexError:
-            print("** instance id missing **")
-
+            attr_name = args[2]
+            attr_value = args[3]
+            if hasattr(obj, attr_name):
+                attr_value = type(getattr(obj, attr_name))(attr_value)
+                setattr(obj, attr_name, attr_value)
+                obj.save()
+            else:
+                print("** attribute doesn't exist **")
+        except NameError:
+            print("** class doesn't exist **")
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
