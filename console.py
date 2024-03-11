@@ -4,10 +4,11 @@
 import cmd
 from models import storage
 from models.base_model import BaseModel
+from models.user import User
 
 class HBNBCommand(cmd.Cmd):
     """Command interpreter class"""
-    
+
     prompt = "(hbnb) "
 
     def do_quit(self, arg):
@@ -75,7 +76,7 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, arg):
         """
         Prints all string representation of all instances based or not on the class name.
-        Ex: $ all BaseModel or $ all.
+Ex: $ all BaseModel or $ all.
         """
         if not arg:
             print("** class name missing **")
